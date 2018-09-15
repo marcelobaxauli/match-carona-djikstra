@@ -14,7 +14,7 @@ public class DjikstraAlgorithm implements Algorithm {
 	private List<TimeRestriction> timeRestrictions;
 
 	private int cost[][];
-	
+
 	public DjikstraAlgorithm(Graph graph, int cost[][], List<TimeRestriction> timeRestrictions) {
 		this.graph = graph;
 		this.timeRestrictions = timeRestrictions;
@@ -33,11 +33,12 @@ public class DjikstraAlgorithm implements Algorithm {
 		do {
 
 			nextMinimumCostNode = this.graph.getMinimumCostNode();
-			
+
 			if (nextMinimumCostNode != null) {
 				nextMinimumCostNode.spanCosts();
+				System.out.println("visited node: " + nextMinimumCostNode.getNumber() + " best path: "
+						+ nextMinimumCostNode.getCurrentMinimumPathCost());
 			}
-			
 
 		} while (nextMinimumCostNode.getNumber() != lastNode.getNumber());
 
@@ -49,7 +50,7 @@ public class DjikstraAlgorithm implements Algorithm {
 		this.printSequence(lastNode);
 		System.out.println("\ncost: " + lastNode.getCurrentMinimumPathCost() / 60 / 1000);
 		System.out.println("direct travel cost: " + this.cost[0][this.cost.length - 1] / 60 / 1000);
-		
+
 		System.out.println("Option pool:");
 		this.printPossiblePassengers();
 	}
@@ -76,7 +77,7 @@ public class DjikstraAlgorithm implements Algorithm {
 
 			if (currentTimeRestriction.getDepartTime() <= sourceTimeRestriction.getDepartTime()
 					&& currentTimeRestriction.getArriveTime() >= sourceTimeRestriction.getArriveTime()
-						&& sourceTimeRestriction.getArriveTime() > currentTimeRestriction.getDepartTime()) {
+					&& sourceTimeRestriction.getArriveTime() > currentTimeRestriction.getDepartTime()) {
 //				System.out.println(j + ": " + currentTimeRestriction + " dist(" + this.cost[0][j] / 60 / 1000 + ")");
 			}
 		}

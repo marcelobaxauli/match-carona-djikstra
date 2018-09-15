@@ -1,48 +1,36 @@
 package com.mbax.djikstra;
 
 import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
 
 import com.mbax.model.TimeRestriction;
 
 public class Node implements Comparable<Node> {
 
-	private List<Vertex> outputVertexes = new LinkedList<Vertex>();
+	private Integer numberOfOutputVertexes;
 
 	private Node previousNode;
 
-	private int number;
+	private int nodeNumber;
 
 	private int currentMinimumPathCost;
 
-	private TimeRestriction timeRestriction;
-
-	private Date rideDepartTime;
-
-	private Date rideArrivalTime;
-
 	private int currentNumberOfPassengers;
 
-	private int maxNumberOfPassengers;
+	private TimeRestriction timeRestriction;
 
-	private int lastNode;
+	private Graph graph;
 
-	public Node(int number, TimeRestriction timeRestriction, Date rideDepartTime, Date rideArrivalTime, int lastNode,
-			int maxNumberOfPassengers) {
-		this.number = number;
+	public Node(int number, TimeRestriction timeRestriction, Graph graph) {
+
+		this.numberOfOutputVertexes = graph.getNumberOfNodes();
+
+		this.graph = graph;
+		this.nodeNumber = number;
+		this.currentMinimumPathCost = 0;
 
 		this.timeRestriction = timeRestriction;
 
-		this.currentMinimumPathCost = 0;
-
-		this.lastNode = lastNode;
-
-		this.maxNumberOfPassengers = maxNumberOfPassengers;
-
-		this.rideDepartTime = rideDepartTime;
-
-		this.rideArrivalTime = rideArrivalTime;
+		this.currentNumberOfPassengers = 0;
 
 		if (number == 0) {
 			this.currentMinimumPathCost = 0;
@@ -59,24 +47,12 @@ public class Node implements Comparable<Node> {
 		this.previousNode = previousNode;
 	}
 
-	public List<Vertex> getOutputVertexes() {
-		return outputVertexes;
-	}
-
-	public void setOutputVertexes(List<Vertex> outputVertexes) {
-		this.outputVertexes = outputVertexes;
-	}
-
-	public void addOutputVertex(Vertex vertex) {
-		this.outputVertexes.add(vertex);
-	}
-
 	public int getNumber() {
-		return number;
+		return nodeNumber;
 	}
 
 	public void setNumber(int number) {
-		this.number = number;
+		this.nodeNumber = number;
 	}
 
 	public int getCurrentMinimumPathCost() {
@@ -89,19 +65,11 @@ public class Node implements Comparable<Node> {
 
 	public boolean isInTimeRestriction(Date visitTime, Date maximumTime) {
 
-		if (this.number == this.lastNode) {
+		if (this.nodeNumber == this.graph.getLastNode().getNumber()) {
 			return true;
 		}
 
 		return this.timeRestriction.isInTimeRestriction(visitTime, maximumTime);
-	}
-
-	public long getRideDepartTime() {
-		return rideDepartTime.getTime();
-	}
-
-	public void setRideDepartTime(long rideDepartTime) {
-		this.rideDepartTime = new Date(rideDepartTime);
 	}
 
 	public int getCurrentNumberOfPassengers() {
@@ -115,19 +83,27 @@ public class Node implements Comparable<Node> {
 	// span costs to forward adjacent vertices
 	public void spanCosts() {
 
-		for (Vertex outputVertex : this.outputVertexes) {
+		for (int adjacentNodeIndex = 1; adjacentNodeIndex < this.numberOfOutputVertexes; adjacentNodeIndex++) {
 
-			int minimumPathCost = this.currentMinimumPathCost + outputVertex.getCost();
+			if (this.nodeNumber != adjacentNodeIndex && !this.graph.isNodeVisisted(adjacentNodeIndex)) {
+				int minimumPathCost = this.currentMinimumPathCost
+						+ this.graph.getCost(this.nodeNumber, adjacentNodeIndex);
 
-			if (outputVertex.getTargetNode().isInTimeRestriction(
-					new Date(this.rideDepartTime.getTime() + minimumPathCost), this.rideArrivalTime)
-					&& (outputVertex.getTargetNode().getNumber() == this.lastNode
-							|| (this.currentNumberOfPassengers + 1 <= this.maxNumberOfPassengers))
-					&& minimumPathCost - ((this.currentNumberOfPassengers) * 16) < outputVertex.getTargetNode()
-							.getCurrentMinimumPathCost()) {
-				outputVertex.getTargetNode().setCurrentMinimumPathCost(minimumPathCost);
-				outputVertex.getTargetNode().setPreviousNode(this);
-				outputVertex.getTargetNode().setCurrentNumberOfPassengers(this.currentNumberOfPassengers + 1);
+				Node adjacentNode = this.graph.getNode(adjacentNodeIndex);
+
+				if (adjacentNode.isInTimeRestriction(
+						new Date(this.graph.getRideDepartTime().getTime() + minimumPathCost),
+						this.graph.getRideDepartTime())
+						&& (adjacentNode.getNumber() == this.graph.getLastNode().getNumber()
+								|| (this.currentNumberOfPassengers + 1 <= this.graph.getMaximumNumberPassagenders()))
+						&& minimumPathCost - ((this.currentNumberOfPassengers) * 16) < adjacentNode
+								.getCurrentMinimumPathCost()) {
+
+					this.graph.setCurrentMinimumPathCost(minimumPathCost, this.nodeNumber, adjacentNodeIndex);
+					adjacentNode.setPreviousNode(this);
+					adjacentNode.setCurrentNumberOfPassengers(this.currentNumberOfPassengers + 1);
+//					this.graph.addVisitedNode(this);
+				}
 			}
 
 		}
