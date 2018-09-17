@@ -33,7 +33,6 @@ public class FastDjikstraShortestPath {
 		}
 		System.out.println(sdf.format(new Date()) + ": Time restrictions created...");
 
-		
 		System.out.println(sdf.format(new Date()) + ": Creating graph...");
 		Graph graph = new Graph(cost, N, timeRestrictions, N - 1, MAX_NUMBER_OF_PASSENGERS);
 		System.out.println(sdf.format(new Date()) + ": Graph created.");
