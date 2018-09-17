@@ -14,6 +14,8 @@ public class FastDjikstraShortestPath {
 
 	private static final SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
 
+	private static final int MAX_N = 10000;
+
 	private static final int N = 10000;
 
 	private static final int MAX_NUMBER_OF_PASSENGERS = 3;
@@ -33,10 +35,13 @@ public class FastDjikstraShortestPath {
 		}
 		System.out.println(sdf.format(new Date()) + ": Time restrictions created...");
 
-		
 		System.out.println(sdf.format(new Date()) + ": Creating graph...");
-		Graph graph = new Graph(cost, N, timeRestrictions, N - 1, MAX_NUMBER_OF_PASSENGERS);
+		Graph graph = new Graph(MAX_N);
 		System.out.println(sdf.format(new Date()) + ": Graph created.");
+
+		System.out.println(sdf.format(new Date()) + ": Configuring graph...");		
+		graph.configure(cost, N, MAX_NUMBER_OF_PASSENGERS, timeRestrictions);
+		System.out.println(sdf.format(new Date()) + ": Graph configured.");
 
 		System.out.println(sdf.format(new Date()) + ": Running dijkstra...");
 		Algorithm algorithm = new DjikstraAlgorithm(graph, cost, timeRestrictions);

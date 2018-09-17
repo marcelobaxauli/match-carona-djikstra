@@ -39,7 +39,7 @@ public class DjikstraAlgorithm implements Algorithm {
 			}
 			
 
-		} while (nextMinimumCostNode.getNumber() != lastNode.getNumber());
+		} while (nextMinimumCostNode != null && nextMinimumCostNode.getNumber() != lastNode.getNumber());
 
 		Date finishTime = new Date();
 		System.out.println(startTime + ": finished.");

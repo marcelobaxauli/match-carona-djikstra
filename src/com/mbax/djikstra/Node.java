@@ -6,7 +6,7 @@ import java.util.List;
 
 import com.mbax.model.TimeRestriction;
 
-public class Node implements Comparable<Node> {
+public class Node {
 
 	private List<Vertex> outputVertexes = new LinkedList<Vertex>();
 
@@ -18,37 +18,21 @@ public class Node implements Comparable<Node> {
 
 	private TimeRestriction timeRestriction;
 
-	private Date rideDepartTime;
-
-	private Date rideArrivalTime;
-
 	private int currentNumberOfPassengers;
 
-	private int maxNumberOfPassengers;
+	private Graph graph;
 
-	private int lastNode;
+	public Node(int number, Graph graph) {
 
-	public Node(int number, TimeRestriction timeRestriction, Date rideDepartTime, Date rideArrivalTime, int lastNode,
-			int maxNumberOfPassengers) {
 		this.number = number;
-
-		this.timeRestriction = timeRestriction;
-
-		this.currentMinimumPathCost = 0;
-
-		this.lastNode = lastNode;
-
-		this.maxNumberOfPassengers = maxNumberOfPassengers;
-
-		this.rideDepartTime = rideDepartTime;
-
-		this.rideArrivalTime = rideArrivalTime;
+		this.graph = graph;
 
 		if (number == 0) {
 			this.currentMinimumPathCost = 0;
 		} else {
 			this.currentMinimumPathCost = Integer.MAX_VALUE;
 		}
+
 	}
 
 	public Node getPreviousNode() {
@@ -88,20 +72,20 @@ public class Node implements Comparable<Node> {
 	}
 
 	public boolean isInTimeRestriction(Date visitTime, Date maximumTime) {
-
-		if (this.number == this.lastNode) {
+		
+		if (this.number == this.graph.getCurrentSize()) {
 			return true;
 		}
-
+		
 		return this.timeRestriction.isInTimeRestriction(visitTime, maximumTime);
 	}
 
-	public long getRideDepartTime() {
-		return rideDepartTime.getTime();
+	public TimeRestriction getTimeRestriction() {
+		return this.timeRestriction;
 	}
 
-	public void setRideDepartTime(long rideDepartTime) {
-		this.rideDepartTime = new Date(rideDepartTime);
+	public void setTimeRestriction(TimeRestriction timeRestriction) {
+		this.timeRestriction = timeRestriction;
 	}
 
 	public int getCurrentNumberOfPassengers() {
@@ -115,14 +99,17 @@ public class Node implements Comparable<Node> {
 	// span costs to forward adjacent vertices
 	public void spanCosts() {
 
-		for (Vertex outputVertex : this.outputVertexes) {
+		for (int i = 0; (i == 0 && i < this.graph.getCurrentSize())
+				|| (i != 0 && i < this.graph.getCurrentSize() - 1); i++) {
 
+			Vertex outputVertex = this.outputVertexes.get(i);
+			
 			int minimumPathCost = this.currentMinimumPathCost + outputVertex.getCost();
 
 			if (outputVertex.getTargetNode().isInTimeRestriction(
-					new Date(this.rideDepartTime.getTime() + minimumPathCost), this.rideArrivalTime)
-					&& (outputVertex.getTargetNode().getNumber() == this.lastNode
-							|| (this.currentNumberOfPassengers + 1 <= this.maxNumberOfPassengers))
+					new Date(this.graph.getRideDepart().getTime() + minimumPathCost), this.graph.getRideArriveTime())
+					&& (outputVertex.getTargetNode().getNumber() == this.graph.getCurrentSize() - 1
+							|| (this.currentNumberOfPassengers + 1 <= this.graph.getCarCapacity()))
 					&& minimumPathCost - ((this.currentNumberOfPassengers) * 16) < outputVertex.getTargetNode()
 							.getCurrentMinimumPathCost()) {
 				outputVertex.getTargetNode().setCurrentMinimumPathCost(minimumPathCost);
@@ -135,15 +122,10 @@ public class Node implements Comparable<Node> {
 	}
 
 	@Override
-	public int compareTo(Node o) {
-		return this.getCurrentMinimumPathCost() - o.getCurrentMinimumPathCost();
-	}
-
-	@Override
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + currentMinimumPathCost;
+		result = prime * result + number;
 		return result;
 	}
 
@@ -156,7 +138,7 @@ public class Node implements Comparable<Node> {
 		if (getClass() != obj.getClass())
 			return false;
 		Node other = (Node) obj;
-		if (currentMinimumPathCost != other.currentMinimumPathCost)
+		if (number != other.number)
 			return false;
 		return true;
 	}
