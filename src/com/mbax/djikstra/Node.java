@@ -34,6 +34,14 @@ public class Node {
 		}
 
 	}
+	
+	public void reset() {
+		if (number == 0) {
+			this.currentMinimumPathCost = 0;
+		} else {
+			this.currentMinimumPathCost = Integer.MAX_VALUE;
+		}
+	}
 
 	public Node getPreviousNode() {
 		return previousNode;
@@ -72,7 +80,7 @@ public class Node {
 	}
 
 	public boolean isInTimeRestriction(Date visitTime, Date maximumTime) {
-		
+
 		if (this.number == this.graph.getCurrentSize()) {
 			return true;
 		}
@@ -99,10 +107,11 @@ public class Node {
 	// span costs to forward adjacent vertices
 	public void spanCosts() {
 
-		for (int i = 0; (i == 0 && i < this.graph.getCurrentSize())
-				|| (i != 0 && i < this.graph.getCurrentSize() - 1); i++) {
-
-			Vertex outputVertex = this.outputVertexes.get(i);
+		for (Vertex outputVertex : this.outputVertexes) {
+			
+			if (outputVertex.getI() >= this.graph.getCurrentSize() || outputVertex.getJ() >= this.graph.getCurrentSize()) {
+				break;
+			}
 			
 			int minimumPathCost = this.currentMinimumPathCost + outputVertex.getCost();
 

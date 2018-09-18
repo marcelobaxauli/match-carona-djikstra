@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -17,6 +18,8 @@ public class Graph {
 	private Map<Integer, Node> nodes;
 
 	private List<Node> minimumCostList;
+	private List<Node> instanceMinimumCostList;
+
 	private Node firstNode;
 	private Node lastNode;
 
@@ -42,7 +45,7 @@ public class Graph {
 		}
 
 		System.out.println("creating vertex:");
-		for (int i = 0; i < maxNodes; i++) {
+		for (int i = 0; i < maxNodes - 1; i++) {
 			for (int j = 1; j < maxNodes; j++) {
 
 				if (i != j) {
@@ -51,6 +54,8 @@ public class Graph {
 
 					Vertex newVertex = new Vertex();
 					newVertex.setTargetNode(targetNode);
+					newVertex.setI(i);
+					newVertex.setJ(j);
 
 					sourceNode.addOutputVertex(newVertex);
 				}
@@ -66,27 +71,42 @@ public class Graph {
 
 	public void configure(int cost[][], int n, int carCapacity, List<TimeRestriction> timeRestrictionList) {
 
-		this.currentSize = n;
-		this.carCapacity = carCapacity;
-		
-		this.firstNode = this.nodes.get(0);
-		this.lastNode = this.nodes.get(n);
+		this.instanceMinimumCostList = new LinkedList<Node>();
 
 		for (int i = 0; i < n; i++) {
+			Node node = this.nodes.get(i);
+			node.reset();
+			
+			this.instanceMinimumCostList.add(node);
+		}
+
+		this.currentSize = n;
+		this.carCapacity = carCapacity;
+
+		this.firstNode = this.nodes.get(0);
+		this.lastNode = this.nodes.get(n - 1);
+
+		for (int i = 0; i < n - 1; i++) {
 
 			Node sourceNode = this.nodes.get(i);
+			sourceNode.reset();
 			sourceNode.setTimeRestriction(timeRestrictionList.get(i));
 
-			for (int j = 1; j < n; j++) {
+			for (Vertex vertex : sourceNode.getOutputVertexes()) {
 
-				if (i != j) {
-					Vertex vertex = sourceNode.getOutputVertexes().get(j);
-					vertex.setCost(cost[i][j]);
+				if (vertex.getI() >= n || vertex.getJ() >= n) {
+					break;
 				}
+
+				vertex.setCost(cost[vertex.getI()][vertex.getJ()]);
 
 			}
 
 		}
+
+		// último nó não possui vertices de saída
+		Node sourceNode = this.nodes.get(n - 1);
+		sourceNode.setTimeRestriction(timeRestrictionList.get(n - 1));
 
 		this.rideDepartTime = new Date(this.nodes.get(0).getTimeRestriction().getDepartTime());
 		this.rideArriveTime = new Date(this.nodes.get(0).getTimeRestriction().getArriveTime());
@@ -95,7 +115,7 @@ public class Graph {
 
 	public Node getMinimumCostNode() {
 
-		this.minimumCostList.sort(new Comparator<Node>() {
+		this.instanceMinimumCostList.sort(new Comparator<Node>() {
 
 			@Override
 			public int compare(Node o1, Node o2) {
@@ -103,7 +123,7 @@ public class Graph {
 			}
 
 		});
-		return this.minimumCostList.remove(0);
+		return this.instanceMinimumCostList.remove(0);
 	}
 
 	public Node getFirstNode() {
