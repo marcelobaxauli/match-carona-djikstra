@@ -45,8 +45,8 @@ public class Graph {
 		}
 
 		System.out.println("creating vertex:");
-		for (int i = 0; i < maxNodes - 1; i++) {
-			for (int j = 1; j < maxNodes; j++) {
+		for (int i = maxNodes - 1; i >= 0; i--) {
+			for (int j = 0; j < maxNodes - 1; j++) {
 
 				if (i != j) {
 					Node sourceNode = nodes.get(i);
@@ -56,7 +56,7 @@ public class Graph {
 					newVertex.setTargetNode(targetNode);
 					newVertex.setI(i);
 					newVertex.setJ(j);
-
+					
 					sourceNode.addOutputVertex(newVertex);
 				}
 
@@ -74,9 +74,14 @@ public class Graph {
 		this.instanceMinimumCostList = new LinkedList<Node>();
 
 		for (int i = 0; i < n; i++) {
-			Node node = this.nodes.get(i);
-			node.reset();
+			Node node = this.nodes.get(i);						
 			
+			if (i == n - 1) {
+				node.setCurrentMinimumPathCost(0);
+			} else {
+				node.setCurrentMinimumPathCost(Integer.MAX_VALUE);
+			}
+			node.setTimeRestriction(timeRestrictionList.get(i));			
 			this.instanceMinimumCostList.add(node);
 		}
 
@@ -86,11 +91,9 @@ public class Graph {
 		this.firstNode = this.nodes.get(0);
 		this.lastNode = this.nodes.get(n - 1);
 
-		for (int i = 0; i < n - 1; i++) {
+		for (int i = 0; i < n; i++) {
 
 			Node sourceNode = this.nodes.get(i);
-			sourceNode.reset();
-			sourceNode.setTimeRestriction(timeRestrictionList.get(i));
 
 			for (Vertex vertex : sourceNode.getOutputVertexes()) {
 

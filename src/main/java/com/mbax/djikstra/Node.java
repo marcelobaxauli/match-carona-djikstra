@@ -3,6 +3,7 @@ package com.mbax.djikstra;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import com.mbax.model.TimeRestriction;
 
@@ -10,7 +11,7 @@ public class Node {
 
 	private List<Vertex> outputVertexes = new LinkedList<Vertex>();
 
-	private Node previousNode;
+	private Node nextNode;
 
 	private int number;
 
@@ -27,28 +28,14 @@ public class Node {
 		this.number = number;
 		this.graph = graph;
 
-		if (number == 0) {
-			this.currentMinimumPathCost = 0;
-		} else {
-			this.currentMinimumPathCost = Integer.MAX_VALUE;
-		}
-
-	}
-	
-	public void reset() {
-		if (number == 0) {
-			this.currentMinimumPathCost = 0;
-		} else {
-			this.currentMinimumPathCost = Integer.MAX_VALUE;
-		}
 	}
 
-	public Node getPreviousNode() {
-		return previousNode;
+	public Node getNextNode() {
+		return nextNode;
 	}
 
-	public void setPreviousNode(Node previousNode) {
-		this.previousNode = previousNode;
+	public void setNextNode(Node nextNode) {
+		this.nextNode = nextNode;
 	}
 
 	public List<Vertex> getOutputVertexes() {
@@ -84,7 +71,7 @@ public class Node {
 		if (this.number == this.graph.getCurrentSize()) {
 			return true;
 		}
-		
+
 		return this.timeRestriction.isInTimeRestriction(visitTime, maximumTime);
 	}
 
@@ -105,24 +92,27 @@ public class Node {
 	}
 
 	// span costs to forward adjacent vertices
-	public void spanCosts() {
+	public void spanCosts(Set<Integer> visitedNodes) {
 
 		for (Vertex outputVertex : this.outputVertexes) {
-			
-			if (outputVertex.getI() >= this.graph.getCurrentSize() || outputVertex.getJ() >= this.graph.getCurrentSize()) {
+
+			if (outputVertex.getI() >= this.graph.getCurrentSize()
+					|| outputVertex.getJ() >= this.graph.getCurrentSize()) {
 				break;
 			}
-			
+
 			int minimumPathCost = this.currentMinimumPathCost + outputVertex.getCost();
 
-			if (outputVertex.getTargetNode().isInTimeRestriction(
+			if (	!visitedNodes.contains(outputVertex.getTargetNode())
+					&& outputVertex.getTargetNode().isInTimeRestriction(
 					new Date(this.graph.getRideDepart().getTime() + minimumPathCost), this.graph.getRideArriveTime())
 					&& (outputVertex.getTargetNode().getNumber() == this.graph.getCurrentSize() - 1
 							|| (this.currentNumberOfPassengers + 1 <= this.graph.getCarCapacity()))
 					&& minimumPathCost - ((this.currentNumberOfPassengers) * 16) < outputVertex.getTargetNode()
 							.getCurrentMinimumPathCost()) {
+								
 				outputVertex.getTargetNode().setCurrentMinimumPathCost(minimumPathCost);
-				outputVertex.getTargetNode().setPreviousNode(this);
+				outputVertex.getTargetNode().setNextNode(this);
 				outputVertex.getTargetNode().setCurrentNumberOfPassengers(this.currentNumberOfPassengers + 1);
 			}
 
