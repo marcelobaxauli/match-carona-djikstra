@@ -14,9 +14,9 @@ public class FastDjikstraShortestPath {
 
 	private static final SimpleDateFormat sdf = new SimpleDateFormat("HH:mm:ss");
 
-	private static final int MAX_N = 10000;
+	private static final int MAX_N = 1000;
 
-	private static final int N = 10000;
+	private static final int N = 300;
 
 	private static final int MAX_NUMBER_OF_PASSENGERS = 3;
 

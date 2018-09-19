@@ -20,6 +20,7 @@ public class Node {
 	private TimeRestriction timeRestriction;
 
 	private int currentNumberOfPassengers;
+	private int currentTime;
 
 	private Graph graph;
 
@@ -92,18 +93,34 @@ public class Node {
 	}
 
 	// span costs to forward adjacent vertices
+	public int getCurrentTime() {
+		return currentTime;
+	}
+
+	public void setCurrentTime(int currentTime) {
+		this.currentTime = currentTime;
+	}
+
 	public void spanCosts(Set<Integer> visitedNodes) {
-
+		
+		if (this.currentNumberOfPassengers >= this.graph.getCarCapacity()) {
+			return;
+		}
+		
 		for (Vertex outputVertex : this.outputVertexes) {
-
+			
 			if (outputVertex.getI() >= this.graph.getCurrentSize()
 					|| outputVertex.getJ() >= this.graph.getCurrentSize()) {
 				break;
 			}
 
-			int minimumPathCost = this.currentMinimumPathCost + outputVertex.getCost();
+			int minimumPathCost = this.currentMinimumPathCost + outputVertex.getTimeCost();
 
-			if (	!visitedNodes.contains(outputVertex.getTargetNode())
+			int estimatedTimeCost = this.currentTime + outputVertex.getTimeCost();
+			
+			int adjacentNodeScore = this.graph.getObjectiveValue(this.currentNumberOfPassengers + 1, estimatedTimeCost / 1000 / 60);
+
+			if (	!visitedNodes.contains(outputVertex.getTargetNode().getNumber())
 					&& outputVertex.getTargetNode().isInTimeRestriction(
 					new Date(this.graph.getRideDepart().getTime() + minimumPathCost), this.graph.getRideArriveTime())
 					&& (outputVertex.getTargetNode().getNumber() == this.graph.getCurrentSize() - 1

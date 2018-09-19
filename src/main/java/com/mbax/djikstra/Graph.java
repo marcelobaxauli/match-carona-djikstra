@@ -9,6 +9,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import com.mbax.model.ObjectiveFunction;
 import com.mbax.model.TimeRestriction;
 
 public class Graph {
@@ -29,6 +30,8 @@ public class Graph {
 	private int currentSize;
 
 	private int carCapacity;
+	
+	private ObjectiveFunction objectiveFunction;
 
 	public Graph(int maxNodes) {
 
@@ -36,6 +39,8 @@ public class Graph {
 
 		this.nodes = new HashMap<Integer, Node>(maxNodes, 1);
 
+		this.objectiveFunction = new ObjectiveFunction(3, 4 * 60, 30);
+		
 		for (int i = 0; i < maxNodes; i++) {
 			Node newNode = new Node(i, this);
 
@@ -101,7 +106,7 @@ public class Graph {
 					break;
 				}
 
-				vertex.setCost(cost[vertex.getI()][vertex.getJ()]);
+				vertex.setTimeCost(cost[vertex.getI()][vertex.getJ()]);
 
 			}
 
@@ -167,6 +172,10 @@ public class Graph {
 
 	public void setCarCapacity(int carCapacity) {
 		this.carCapacity = carCapacity;
+	}
+	
+	public int getObjectiveValue(int numberOfPassengers, int timeCost) {
+		return this.objectiveFunction.getObjectiveFunctionValue(numberOfPassengers, timeCost);
 	}
 
 }

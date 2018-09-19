@@ -4,7 +4,7 @@ public class Vertex {
 
 	private Node targetNode;
 
-	private int cost;
+	private int timeCost;
 
 	private int i;
 	private int j;
@@ -17,12 +17,12 @@ public class Vertex {
 		this.targetNode = targetNode;
 	}
 
-	public int getCost() {
-		return cost;
+	public int getTimeCost() {
+		return timeCost;
 	}
 
-	public void setCost(int cost) {
-		this.cost = cost;
+	public void setTimeCost(int cost) {
+		this.timeCost = cost;
 	}
 
 	public int getI() {

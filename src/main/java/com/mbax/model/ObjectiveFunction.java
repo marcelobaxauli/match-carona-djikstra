@@ -59,7 +59,9 @@ public class ObjectiveFunction {
 
 		NumberPassengerTimeTuple tuple = new NumberPassengerTimeTuple(numberOfPassengers, time);
 
-		return this.objectiveTable.get(tuple);
+		Integer objective = this.objectiveTable.get(tuple);
+		
+		return (objective == null) ? -1 : objective;
 	}
 
 	public void printObjectiveTable() {
